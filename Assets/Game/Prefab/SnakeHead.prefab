@@ -104,9 +104,7 @@ MonoBehaviour:
   currentNode: {fileID: 0}
   isDragging: 0
   moveSpeed: 3
-  nodeLayer:
-    serializedVersion: 2
-    m_Bits: 64
+  currentDirection: 0
 --- !u!61 &804599273984382232
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using NUnit.Framework;
+using System.Collections.Generic;
 
 public class SnakeController : MonoBehaviour
 {
@@ -7,26 +9,33 @@ public class SnakeController : MonoBehaviour
     public bool isDragging = false;
 
     public float moveSpeed = 5f;
-    private bool isMoving = false; // cờ kiểm tra rắn đang di chuyển
+    private bool isMoving = false;
+
+    private List<SnakeBody> snakeParts = new List<SnakeBody>();
 
 
     public enum Direction { Up, Down, Left, Right }
 
-    [SerializeField]private Direction currentDirection = Direction.Right;
+    [SerializeField]private Direction currentDirection = Direction.Up;
     private void Update()
     {
-        if (isDragging && !isMoving) // chỉ nhận input khi không di chuyển
+        if (isDragging && !isMoving) 
         {
             HandleMouseDrag();
         }
     }
 
-    public void SetCurrentNode(Node node)
+    public void SetCurrentNode(Node node, Direction dir)
     {
         currentNode = node;
         transform.position = node.transform.position;
+        currentDirection = dir;
     }
 
+    public void SetSnakaParts(List<SnakeBody> Parts)
+    {
+        snakeParts = Parts;
+    }
     private void OnMouseDown()
     {
         isDragging = true;
@@ -66,8 +75,10 @@ public class SnakeController : MonoBehaviour
 
     IEnumerator MoveSmooth(Node newNode)
     {
-        isMoving = true; 
+        isMoving = true;
 
+        Node oldHeadNode = currentNode;
+        UpdateSnakeParts(oldHeadNode);
         while (Vector3.Distance(transform.position, newNode.transform.position) > 0.01f)
         {
             transform.position = Vector3.MoveTowards(transform.position, newNode.transform.position, moveSpeed * Time.deltaTime);
@@ -77,9 +88,23 @@ public class SnakeController : MonoBehaviour
         currentNode = newNode;
         currentNode.SetIsSnake(true);
         transform.position = newNode.transform.position;
-
-        isMoving = false; 
+        isMoving = false;
     }
+
+    void UpdateSnakeParts(Node oldHeadNode)
+    {
+        Node prevNode = oldHeadNode;
+
+        for (int i = 0; i < snakeParts.Count; i++)
+        {
+            Node temp = snakeParts[i].currentNode;
+            temp.SetIsSnake(false);
+            snakeParts[i].SetCurrentNode(prevNode);
+            prevNode = temp;
+        }
+    }
+
+
 
     Direction? GetDirectionFromNodes( Node target)
     {

@@ -16,18 +16,20 @@ public class Node : MonoBehaviour
     private GameObject itemObject;
 
 
-    
+
 
     void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
     }
-  
+
+
 
     public void SetIndex(int indexX, int indexY)
     {
         this.indexX = indexX;
         this.indexY = indexY;
+        
     }
 
     public bool IsSnake() => isSnake;  
@@ -41,6 +43,12 @@ public class Node : MonoBehaviour
         SetNeighboorNode(indexX - 1, indexY, nodesMap);
         SetNeighboorNode(indexX, indexY + 1, nodesMap);
         SetNeighboorNode(indexX, indexY - 1, nodesMap);
+    }
+
+    public void SetColor(Color color)
+    {
+        if (spriteRenderer != null)
+            spriteRenderer.color = color;
     }
 
     public void SetNeighboorNode(int x, int y, Node[,] nodesMap)

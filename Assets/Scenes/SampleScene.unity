@@ -119,51 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &172516417
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 172516419}
-  - component: {fileID: 172516418}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &172516418
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 172516417}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d724674bba691d448b665a26d447853d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mainCam: {fileID: 519420031}
---- !u!4 &172516419
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 172516417}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10.53533, y: -14.96929, z: 129.21616}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -269,7 +224,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
-  orthographic: 1
+  orthographic: 0
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:
@@ -295,7 +250,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.5, y: 5.5, z: -28}
+  m_LocalPosition: {x: 7.3, y: 7.75, z: -28}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -432,7 +387,9 @@ MonoBehaviour:
   width: 15
   height: 15
   nodePrefab: {fileID: 1221081383106111062, guid: eb99324c71e5a4342927e069c7d4e0d2, type: 3}
-  snakePrefab: {fileID: 8053160264968801424, guid: e78af6a8d4e0701458296b4ce9141803, type: 3}
+  snakeHeadPrefab: {fileID: 8053160264968801424, guid: e78af6a8d4e0701458296b4ce9141803, type: 3}
+  snakeTailPrefab: {fileID: 3366968113906163998, guid: c25103c28d2bbf947988852ec9a372a7, type: 3}
+  snakeBodyPrefab: {fileID: 4270813425582329793, guid: d34a5402599b5604a8f9c6e7525a70ff, type: 3}
   foodPrefab: {fileID: 7145988149548545450, guid: 1f6b143df167e9e40a74854426a7494f, type: 3}
   ObstaclePrefab: {fileID: 1494537919005328312, guid: 86f65b94c8f366c44b5b64dc5ad08c31, type: 3}
 --- !u!1660057539 &9223372036854775807
@@ -442,4 +399,3 @@ SceneRoots:
   - {fileID: 519420032}
   - {fileID: 619394802}
   - {fileID: 868449082}
-  - {fileID: 172516419}
