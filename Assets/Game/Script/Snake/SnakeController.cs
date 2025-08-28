@@ -2,24 +2,23 @@
 using System.Collections;
 using NUnit.Framework;
 using System.Collections.Generic;
+using static UnityEditor.VersionControl.Asset;
 
-public class SnakeController : MonoBehaviour
+public class SnakeController : SnakeBase
 {
-    public Node currentNode;
-    public bool isDragging = false;
-
-    public float moveSpeed = 5f;
+    private bool isDragging = false;
     private bool isMoving = false;
 
     private List<SnakeBody> snakeParts = new List<SnakeBody>();
 
 
-    public enum Direction { Up, Down, Left, Right }
-
-    [SerializeField]private Direction currentDirection = Direction.Up;
+    private void Start()
+    {
+        RotatingSnake(currentDirection);
+    }
     private void Update()
     {
-        if (isDragging && !isMoving) 
+        if (isDragging && !isMoving)
         {
             HandleMouseDrag();
         }
@@ -87,6 +86,10 @@ public class SnakeController : MonoBehaviour
 
         currentNode = newNode;
         currentNode.SetIsSnake(true);
+        if (GameManager.Instance.CheckWin())
+        {
+            Debug.Log("WWWWWIIIIIIINNNNNN");
+        }
         transform.position = newNode.transform.position;
         isMoving = false;
     }
@@ -106,20 +109,21 @@ public class SnakeController : MonoBehaviour
 
 
 
-    Direction? GetDirectionFromNodes( Node target)
+    Direction? GetDirectionFromNodes(Node target)
     {
         int dx = target.GetIndexX() - currentNode.GetIndexX();
         int dy = target.GetIndexY() - currentNode.GetIndexY();
 
-        if (dx == 1 && dy == 0) return Direction.Right;
-        if (dx == -1 && dy == 0) return Direction.Left;
-        if (dx == 0 && dy == 1) return Direction.Up;
-        if (dx == 0 && dy == -1) return Direction.Down;
+        if (dx == 1 && dy == 0) return Direction.Down;
+        if (dx == -1 && dy == 0) return Direction.Up;
+        if (dx == 0 && dy == 1) return Direction.Right;
+        if (dx == 0 && dy == -1) return Direction.Left;
 
         return null;
     }
 
-    public void CheckDirection(Node targetNode)
+
+    private void CheckDirection(Node targetNode)
     {
         Direction? dir = GetDirectionFromNodes(targetNode);
 
@@ -128,6 +132,7 @@ public class SnakeController : MonoBehaviour
             if (!IsOppositeDirection(currentDirection, dir.Value))
             {
                 currentDirection = dir.Value;
+                RotatingSnake(currentDirection);
                 MoveToNode(targetNode);
             }
         }
@@ -140,6 +145,4 @@ public class SnakeController : MonoBehaviour
                (dir1 == Direction.Left && dir2 == Direction.Right) ||
                (dir1 == Direction.Right && dir2 == Direction.Left);
     }
-
-
 }

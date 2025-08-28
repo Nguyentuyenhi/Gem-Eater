@@ -24,6 +24,9 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
     public GameObject ObstaclePrefab;
     public Node[,] nodesMap;
 
+    public List<SnakeController> snakes = new List<SnakeController>();
+    public List<Node> foodNodes = new List<Node>();
+
     void Start()
     {
         int[,] mapData = new int[,]
@@ -55,7 +58,7 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
 
         for (int x = 0; x < width; x++)
         {
-            for (int y = 0; y < height; y++)
+            for (int y = height - 1; y >= 0; y--)
             {
                 int newX = y;
                 int newY = width - 1 - x;
@@ -72,15 +75,12 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
 
                 nodesMap[x, y] = node;
 
-                // spawn theo data
                 if (data[x, y] == 1)
                     SpawnObstacle(new Vector2Int(x, y));
                 else if (data[x, y] == 2)
                     SpawnFood(new Vector2Int(x, y));
-
             }
         }
-
         for (int x = 0; x < width; x++)
             for (int y = 0; y < height; y++)
                 nodesMap[x, y].InitNode(nodesMap);
@@ -92,7 +92,7 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
     { 0, 0, 3},
         };
 
-        SpawnSnakeFromMatrix(headPos, snakeData,SnakeController.Direction.Right
+        SpawnSnakeFromMatrix(headPos, snakeData, SnakeController.Direction.Down
             );
         SpawnSnakeFromMatrix(new Vector2Int(6, 8), new int[,]
         {
@@ -103,39 +103,6 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
 
     }
 
-    //public void InitSnake(Vector2Int startPos, int length)
-    //{
-    //    // Spawn head
-    //    Node node = nodesMap[startPos.x, startPos.y];
-    //    var snake = Instantiate(snakeHeadPrefab, node.transform.position, Quaternion.identity);
-    //    node.SetIsSnake(true);
-
-    //    SnakeController head = snake.GetComponent<SnakeController>();
-    //    head.SetCurrentNode(node);
-
-    //    List<SnakeBody> snakeParts = new List<SnakeBody>();
-
-    //    // Spawn body
-    //    for (int i = 0; i < length - 1; i++)
-    //    {
-    //        Node bodyNode = nodesMap[startPos.x - i - 1, startPos.y];
-    //        var bodyObj = Instantiate(snakeBodyPrefab, bodyNode.transform.position, Quaternion.identity);
-    //        var body = bodyObj.GetComponent<SnakeBody>();
-    //        body.SetCurrentNode(bodyNode);
-    //        bodyNode.SetIsSnake(true);
-    //        snakeParts.Add(body);
-    //    }
-
-    //    // Spawn tail
-    //    Node tailNode = nodesMap[startPos.x - (length - 1), startPos.y];
-    //    var tailObj = Instantiate(snakeTailPrefab, tailNode.transform.position, Quaternion.identity);
-    //    var tail = tailObj.GetComponent<SnakeBody>();
-    //    tail.SetCurrentNode(tailNode);
-    //    tailNode.SetIsSnake(true);
-    //    snakeParts.Add(tail);
-
-    //    head.SetSnakaParts(snakeParts);
-    //}
     public void SpawnAllSnakes(List<SnakeInfo> snakes)
     {
         foreach (var s in snakes)
@@ -151,7 +118,7 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
         Vector2Int? headLocal = null;
         for (int x = 0; x < width; x++)
             for (int y = 0; y < height; y++)
-                if (snakeData[x, y] == 3) 
+                if (snakeData[x, y] == 3)
                     headLocal = new Vector2Int(x, y);
 
         if (!headLocal.HasValue)
@@ -180,13 +147,14 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
             Node node = nodesMap[worldPos.x, worldPos.y];
             node.SetIsSnake(true);
 
-            if (val == 3) 
+            if (val == 3)
             {
                 var headObj = Instantiate(snakeHeadPrefab, node.transform.position, Quaternion.identity);
                 headController = headObj.GetComponent<SnakeController>();
                 headController.SetCurrentNode(node, dir);
+                snakes.Add(headController);
             }
-            else if (val == 4 || val == 5) 
+            else if (val == 4 || val == 5)
             {
                 GameObject prefab = val == 4 ? snakeBodyPrefab : snakeTailPrefab;
                 var partObj = Instantiate(prefab, node.transform.position, Quaternion.identity);
@@ -222,43 +190,12 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
             headController.SetSnakaParts(parts);
     }
 
-
-
-
-    //public void SpawnSnakeHead(Vector2Int pos)
-    //{
-    //    Node node = nodesMap[pos.x, pos.y];
-    //    var snake = Instantiate(snakeHeadPrefab, node.transform.position, Quaternion.identity);
-    //    node.SetIsSnake(true);
-    //    SnakeController controller = snake.GetComponent<SnakeController>();
-    //    controller.SetCurrentNode(node);
-    //}
-    //public void SpawnSnakeBody(Vector2Int pos)
-    //{
-    //    Node node = nodesMap[pos.x, pos.y];
-    //    var snake = Instantiate(snakeBodyPrefab, node.transform.position, Quaternion.identity);
-    //    node.SetIsSnake(true);
-    //    SnakeBody controller = snake.GetComponent<SnakeBody>();
-    //    controller.SetCurrentNode(node);
-    //    snakeParts.Add(controller);
-
-    //}
-
-    //public void SpawnSnakeTail(Vector2Int pos)
-    //{
-    //    Node node = nodesMap[pos.x, pos.y];
-    //    var snake = Instantiate(snakeTailPrefab, node.transform.position, Quaternion.identity);
-    //    node.SetIsSnake(true);
-    //    SnakeBody controller = snake.GetComponent<SnakeBody>();
-    //    controller.SetCurrentNode(node);
-    //    snakeParts.Add(controller);
-
-    //}
     public void SpawnFood(Vector2Int pos)
     {
         Node node = nodesMap[pos.x, pos.y];
         var food = Instantiate(foodPrefab, node.transform.position, Quaternion.identity, node.transform);
         node.SetItemObject(food);
+        foodNodes.Add(node);
     }
 
     public void SpawnObstacle(Vector2Int pos)
@@ -267,25 +204,6 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
         var Obstacle = Instantiate(ObstaclePrefab, node.transform.position, Quaternion.identity, node.transform);
         node.SetOccupied(true);
     }
-    //void GenerateCustomMap()
-    //{
-    //    // SpawnSnakeHead(new Vector2Int(7, 7));
-    //    InitSnake(new Vector2Int(7, 7), 4);
-    //    InitSnake(new Vector2Int(7, 5), 3);
-
-
-    //    // Spawn obstacles (nâu)
-    //    SpawnObstacle(new Vector2Int(3, 3));
-    //    SpawnObstacle(new Vector2Int(5, 3));
-    //    SpawnObstacle(new Vector2Int(3, 4));
-    //    SpawnObstacle(new Vector2Int(3, 5));
-    //    SpawnObstacle(new Vector2Int(3, 6));
-    //    SpawnObstacle(new Vector2Int(4, 6));
-
-    //    // Spawn food (hong)
-    //    SpawnFood(new Vector2Int(7, 3));
-    //    SpawnFood(new Vector2Int(2, 2));
-    //}
     public Node GetNearestNode(Vector3 worldPos)
     {
         float minDist = float.MaxValue;
@@ -302,9 +220,5 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
         }
         return nearest;
     }
-
-
-
-
 }
 

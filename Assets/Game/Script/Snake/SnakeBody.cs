@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class SnakeBody : MonoBehaviour
+public class SnakeBody : SnakeBase
 {
-    public Node currentNode;
-    public float moveSpeed = 5f;
 
     public void SetCurrentNode(Node node)
     {
@@ -14,7 +12,7 @@ public class SnakeBody : MonoBehaviour
 
     IEnumerator MoveSmooth(Node newNode)
     {
-        
+
         while (Vector3.Distance(transform.position, newNode.transform.position) > 0.01f)
         {
             transform.position = Vector3.MoveTowards(

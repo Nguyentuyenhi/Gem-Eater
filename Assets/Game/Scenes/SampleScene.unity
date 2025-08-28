@@ -350,8 +350,9 @@ GameObject:
   m_Component:
   - component: {fileID: 868449082}
   - component: {fileID: 868449083}
+  - component: {fileID: 868449084}
   m_Layer: 0
-  m_Name: GridManager
+  m_Name: Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -392,6 +393,20 @@ MonoBehaviour:
   snakeBodyPrefab: {fileID: 4270813425582329793, guid: d34a5402599b5604a8f9c6e7525a70ff, type: 3}
   foodPrefab: {fileID: 7145988149548545450, guid: 1f6b143df167e9e40a74854426a7494f, type: 3}
   ObstaclePrefab: {fileID: 1494537919005328312, guid: 86f65b94c8f366c44b5b64dc5ad08c31, type: 3}
+  snakes: []
+  foodNodes: []
+--- !u!114 &868449084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 868449080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 007638c7573d35d46afe1a2de1d5c14f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
