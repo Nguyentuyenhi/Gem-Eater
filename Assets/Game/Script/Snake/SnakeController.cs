@@ -86,10 +86,10 @@ public class SnakeController : SnakeBase
 
         currentNode = newNode;
         currentNode.SetIsSnake(true);
-        if (GameManager.Instance.CheckWin())
-        {
-            Debug.Log("WWWWWIIIIIIINNNNNN");
-        }
+        //if (GameManager.Instance.CheckWin())
+        //{
+        //    Debug.Log("WWWWWIIIIIIINNNNNN");
+        //}
         transform.position = newNode.transform.position;
         isMoving = false;
     }
