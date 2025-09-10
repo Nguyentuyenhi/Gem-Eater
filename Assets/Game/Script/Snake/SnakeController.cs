@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿using NUnit.Framework;
 using System.Collections;
-using NUnit.Framework;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
+using UnityEngine;
+using static UnityEditor.Progress;
 using static UnityEditor.VersionControl.Asset;
 
 public class SnakeController : SnakeBase
@@ -86,12 +88,33 @@ public class SnakeController : SnakeBase
 
         currentNode = newNode;
         currentNode.SetIsSnake(true);
-        //if (GameManager.Instance.CheckWin())
-        //{
-        //    Debug.Log("WWWWWIIIIIIINNNNNN");
-        //}
-        transform.position = newNode.transform.position;
+        CheckNodeISGem(newNode);
+            //if (GameManager.Instance.CheckWin())
+            //{
+            //    Debug.Log("WWWWWIIIIIIINNNNNN");
+            //}
+            transform.position = newNode.transform.position;
         isMoving = false;
+    }
+
+    private void CheckNodeISGem(Node node)
+    {
+
+        var itemObj = node.GetItemObject();
+        if (itemObj != null)
+        {
+
+            switch (node.tileType)
+            {
+                case TileType.GemRed:
+                case TileType.GemYellow:
+                case TileType.GemWhite:
+                case TileType.Ground:
+                    node.ClearItemObject();
+                    break;
+
+            }
+        }
     }
 
     void UpdateSnakeParts(Node oldHeadNode)
@@ -102,7 +125,7 @@ public class SnakeController : SnakeBase
         {
             Node temp = snakeParts[i].currentNode;
             temp.SetIsSnake(false);
-            snakeParts[i].SetCurrentNode(prevNode);
+            snakeParts[i].MoveToNode(prevNode);
             prevNode = temp;
         }
     }
@@ -114,10 +137,10 @@ public class SnakeController : SnakeBase
         int dx = target.GetIndexX() - currentNode.GetIndexX();
         int dy = target.GetIndexY() - currentNode.GetIndexY();
 
-        if (dx == 1 && dy == 0) return Direction.Down;
-        if (dx == -1 && dy == 0) return Direction.Up;
-        if (dx == 0 && dy == 1) return Direction.Right;
-        if (dx == 0 && dy == -1) return Direction.Left;
+        if (dx == 1 && dy == 0) return Direction.Right;
+        if (dx == -1 && dy == 0) return Direction.Left;
+        if (dx == 0 && dy == 1) return Direction.Up;
+        if (dx == 0 && dy == -1) return Direction.Down;
 
         return null;
     }

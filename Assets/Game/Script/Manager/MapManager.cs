@@ -14,39 +14,36 @@ public class SnakeInfo
 
 public class MapManager : SingletonMonoBehaviour<MapManager>
 {
-    public int width = 15;
-    public int height = 15;
+    public int width = 7;
+    public int height = 10;
+    [Header("Prefabs")]
+    public GameObject obstaclePrefab;
+    public GameObject groundPrefab;
+    public GameObject gemWhitePrefab;
+    public GameObject gemYellowPrefab;
+    public GameObject gemRedPrefab;
     public GameObject nodePrefab;
     public GameObject snakeHeadPrefab;
     public GameObject snakeTailPrefab;
     public GameObject snakeBodyPrefab;
-    public GameObject foodPrefab;
-    public GameObject ObstaclePrefab;
     public Node[,] nodesMap;
 
     public List<SnakeController> snakes = new List<SnakeController>();
-    public List<Node> foodNodes = new List<Node>();
 
     void Start()
     {
-        int[,] mapData = new int[,]
-{
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,0,0,0,1,0,1,1,1,1,1},
-    {1,1,1,1,1,0,1,0,0,0,1,1,1,1,1},
-    {1,1,1,1,1,0,0,0,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,0,2,1,1,1,1,1,1},
-    {1,1,1,1,1,2,0,0,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-};
+        int[,] mapData = new int[7, 10] {
+    {0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,0,0,6,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,7,0,8,0,0,0},
+    {0,0,0,0,0,0,0,0,0,0},
+    {0,0,0,0,1,0,0,0,0,0}
+
+    };
+
+
         GenerateMapFromData(mapData);
     }
 
@@ -58,12 +55,9 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
 
         for (int x = 0; x < width; x++)
         {
-            for (int y = height - 1; y >= 0; y--)
+            for (int y = 0; y < height; y++)   
             {
-                int newX = y;
-                int newY = width - 1 - x;
-
-                Vector3 pos = new Vector3(newX * 1f, newY * 1f, 0);
+                Vector3 pos = new Vector3(x, y, 0);
                 var nodeObj = Instantiate(nodePrefab, pos, Quaternion.identity, transform);
                 Node node = nodeObj.GetComponent<Node>();
                 node.SetIndex(x, y);
@@ -77,31 +71,31 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
 
                 if (data[x, y] == 1)
                     SpawnObstacle(new Vector2Int(x, y));
-                else if (data[x, y] == 2)
-                    SpawnFood(new Vector2Int(x, y));
+                else if (data[x, y] == 0)
+                    SpawnGround(new Vector2Int(x, y));
+                else if (data[x, y] == 6)
+                    SpawnFood(new Vector2Int(x, y), TileType.GemRed, gemRedPrefab);
+                else if (data[x, y] == 7)
+                    SpawnFood(new Vector2Int(x, y), TileType.GemWhite, gemWhitePrefab);
+                else if (data[x, y] == 8)
+                    SpawnFood(new Vector2Int(x, y), TileType.GemYellow, gemYellowPrefab);
             }
         }
+
         for (int x = 0; x < width; x++)
             for (int y = 0; y < height; y++)
                 nodesMap[x, y].InitNode(nodesMap);
-        Vector2Int headPos = new Vector2Int(6, 7);
 
+        Vector2Int headPos = new Vector2Int(3, 2);
         int[,] snakeData = new int[,]
         {
-    { 5, 4, 4},
-    { 0, 0, 3},
+        { 5, 4, 4 },
+        { 0, 0, 3 },
         };
 
-        SpawnSnakeFromMatrix(headPos, snakeData, SnakeController.Direction.Down
-            );
-        SpawnSnakeFromMatrix(new Vector2Int(6, 8), new int[,]
-        {
-    { 0, 5 },
-    { 3, 4},
-        }, SnakeController.Direction.Left);
-
-
+        SpawnSnakeFromMatrix(headPos, snakeData, SnakeController.Direction.Down);
     }
+
 
     public void SpawnAllSnakes(List<SnakeInfo> snakes)
     {
@@ -190,19 +184,25 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
             headController.SetSnakaParts(parts);
     }
 
-    public void SpawnFood(Vector2Int pos)
+    public void SpawnFood(Vector2Int pos,TileType tileType,GameObject gem)
     {
         Node node = nodesMap[pos.x, pos.y];
-        var food = Instantiate(foodPrefab, node.transform.position, Quaternion.identity, node.transform);
-        node.SetItemObject(food);
-        foodNodes.Add(node);
+        var food = Instantiate(gem, node.transform.position, Quaternion.identity, node.transform);
+        node.SetTile(tileType, food);
     }
 
     public void SpawnObstacle(Vector2Int pos)
     {
         Node node = nodesMap[pos.x, pos.y];
-        var Obstacle = Instantiate(ObstaclePrefab, node.transform.position, Quaternion.identity, node.transform);
+        var Obstacle = Instantiate(obstaclePrefab, node.transform.position, Quaternion.identity, node.transform);
         node.SetOccupied(true);
+        node.SetTile(TileType.Obstacle, Obstacle);
+    }
+    public void SpawnGround(Vector2Int pos)
+    {
+        Node node = nodesMap[pos.x, pos.y];
+        var ground = Instantiate(groundPrefab, node.transform.position, Quaternion.identity, node.transform);
+        node.SetTile(TileType.Ground, ground);
     }
     public Node GetNearestNode(Vector3 worldPos)
     {

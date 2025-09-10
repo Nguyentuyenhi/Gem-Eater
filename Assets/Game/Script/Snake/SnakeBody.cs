@@ -1,16 +1,24 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
+using UnityEngine;
+using static SnakeBody;
 
 public class SnakeBody : SnakeBase
 {
+    public enum SnakeType { Body, Tail }
+    private Node oldNode;
 
+    [SerializeField] private SnakeType snakeType;
     public void SetCurrentNode(Node node)
     {
+
         currentNode = node;
-        StartCoroutine(MoveSmooth(node));
     }
 
-    IEnumerator MoveSmooth(Node newNode)
+    public void MoveToNode(Node node)
+    {
+        StartCoroutine(MoveSmooth(node));
+    }
+    protected virtual IEnumerator MoveSmooth(Node newNode)
     {
 
         while (Vector3.Distance(transform.position, newNode.transform.position) > 0.01f)
@@ -22,8 +30,18 @@ public class SnakeBody : SnakeBase
             );
             yield return null;
         }
+        oldNode = currentNode;
+        currentNode = newNode;
         currentNode.SetIsSnake(true);
+        if (snakeType == SnakeType.Tail)
+        {
+            oldNode.SetCanDown(true);
+            GameManager.Instance.TryCollapseColumn(new Vector2Int(oldNode.indexX, oldNode.indexY ));
+        }
         transform.position = newNode.transform.position;
+
     }
 
+
 }
+

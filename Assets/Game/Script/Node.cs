@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -10,11 +11,11 @@ public class Node : MonoBehaviour
     [SerializeField] private Node previousNode;
     [SerializeField] private List<Node> neigboorNodes = new List<Node>();
     private SpriteRenderer spriteRenderer;
-   // public List<ItemSO> itemSOList = new List<ItemSO>();  // Danh sách các ItemSO
     [SerializeField] private bool isSnake;
-    [SerializeField] private bool isFood;
-    private GameObject itemObject;
-
+    [SerializeField] private bool isGem;
+    [SerializeField] private bool canDown = false;
+    public TileType tileType;
+    public GameObject itemObj = null;
 
 
 
@@ -29,7 +30,25 @@ public class Node : MonoBehaviour
     {
         this.indexX = indexX;
         this.indexY = indexY;
-        
+
+    }
+    public void SetTile(TileType type, GameObject obj)
+    {
+        tileType = type;
+        itemObj = obj;
+    }
+
+    public TileType GetTileType() => tileType;
+    public GameObject GetItemObject() => itemObj;
+    public void ClearItem()
+    {
+        itemObj = null;
+        tileType = TileType.Empty;
+    }
+    public void ClearItemObject()
+    {
+        Destroy(itemObj);
+        ClearItem();
     }
 
     public bool IsSnake() => isSnake;  
@@ -57,13 +76,6 @@ public class Node : MonoBehaviour
         neigboorNodes.Add(nodesMap[x, y]);
     }
 
-    public void SetItemObject(GameObject item)
-    {
-        itemObject = item;
-        Debug.Log($"Node ({indexX}, {indexY}) item set to {item?.name ?? "null"}");
-    }
-
-    public GameObject GetItemObject() => itemObject;
 
     public int GetIndexX() => indexX;
     public int GetIndexY() => indexY;
@@ -72,6 +84,8 @@ public class Node : MonoBehaviour
 
     public bool GetIsObstacle() => isObstacle;
 
+    public bool GetIsGem() => isGem;
+    public void SetIsGem(bool value) => isGem = value;
     public void SetPreviousNode(Node previousNode) => this.previousNode = previousNode;
     public SpriteRenderer GetSpriteRenderer() => spriteRenderer;
 
@@ -80,4 +94,7 @@ public class Node : MonoBehaviour
         isObstacle = occupied;
         Debug.Log($"Node ({indexX}, {indexY}) occupancy set to {occupied}");
     }
+
+    public bool GetCanDown() => canDown;
+    public void SetCanDown(bool value) => canDown = value;
 }

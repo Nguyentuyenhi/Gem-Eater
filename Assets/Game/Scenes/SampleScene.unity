@@ -250,7 +250,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.3, y: 7.75, z: -28}
+  m_LocalPosition: {x: 3, y: 5.8, z: -20.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -385,16 +385,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b696c7903c879346a65b42a80a7e00b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 15
-  height: 15
+  width: 7
+  height: 10
+  obstaclePrefab: {fileID: 1494537919005328312, guid: 86f65b94c8f366c44b5b64dc5ad08c31, type: 3}
+  groundPrefab: {fileID: 8801936455888386326, guid: c662e83f68981864daaff00a512511a9, type: 3}
+  gemWhitePrefab: {fileID: 7145988149548545450, guid: 1f6b143df167e9e40a74854426a7494f, type: 3}
+  gemYellowPrefab: {fileID: 7145988149548545450, guid: 4de1cee2a87f8a048a148346d20af364, type: 3}
+  gemRedPrefab: {fileID: 7145988149548545450, guid: f238a26305f203c42b1712b21b2d8748, type: 3}
   nodePrefab: {fileID: 1221081383106111062, guid: eb99324c71e5a4342927e069c7d4e0d2, type: 3}
   snakeHeadPrefab: {fileID: 8053160264968801424, guid: e78af6a8d4e0701458296b4ce9141803, type: 3}
   snakeTailPrefab: {fileID: 3366968113906163998, guid: c25103c28d2bbf947988852ec9a372a7, type: 3}
   snakeBodyPrefab: {fileID: 4270813425582329793, guid: d34a5402599b5604a8f9c6e7525a70ff, type: 3}
-  foodPrefab: {fileID: 7145988149548545450, guid: 1f6b143df167e9e40a74854426a7494f, type: 3}
-  ObstaclePrefab: {fileID: 1494537919005328312, guid: 86f65b94c8f366c44b5b64dc5ad08c31, type: 3}
   snakes: []
-  foodNodes: []
 --- !u!114 &868449084
 MonoBehaviour:
   m_ObjectHideFlags: 0
