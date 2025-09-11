@@ -35,8 +35,8 @@ public class SnakeBody : SnakeBase
         currentNode.SetIsSnake(true);
         if (snakeType == SnakeType.Tail)
         {
-            oldNode.SetCanDown(true);
-            GameManager.Instance.TryCollapseColumn(new Vector2Int(oldNode.indexX, oldNode.indexY ));
+            //oldNode.SetCanDown(true);
+            GameManager.Instance.TryCollapseColumn(new Vector2Int(oldNode.indexX, oldNode.indexY));
         }
         transform.position = newNode.transform.position;
 

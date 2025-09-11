@@ -89,11 +89,11 @@ public class SnakeController : SnakeBase
         currentNode = newNode;
         currentNode.SetIsSnake(true);
         CheckNodeISGem(newNode);
-            //if (GameManager.Instance.CheckWin())
-            //{
-            //    Debug.Log("WWWWWIIIIIIINNNNNN");
-            //}
-            transform.position = newNode.transform.position;
+        //if (GameManager.Instance.CheckWin())
+        //{
+        //    Debug.Log("WWWWWIIIIIIINNNNNN");
+        //}
+        transform.position = newNode.transform.position;
         isMoving = false;
     }
 
@@ -168,4 +168,5 @@ public class SnakeController : SnakeBase
                (dir1 == Direction.Left && dir2 == Direction.Right) ||
                (dir1 == Direction.Right && dir2 == Direction.Left);
     }
+
 }
