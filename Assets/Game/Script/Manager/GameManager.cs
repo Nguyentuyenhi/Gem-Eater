@@ -146,9 +146,71 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 obj.transform.position = Vector3.Lerp(start, end, t);
                 yield return null;
             }
+            if (!newNode.IsSnake() && newNode.GetItemObject() == null)
+            {
+                obj.transform.position = end;
+                newNode.SetTile(tileType, obj);
+                switch (newNode.tileType)
+                {
+                    case TileType.Obstacle:
+                        newNode.SetOccupied(true); break;
 
-            obj.transform.position = end;
-            newNode.SetTile(tileType, obj);
+                }
+            }
+            else
+            {
+                Destroy(obj);
+            }
+        }
+
+        StartCoroutine(SpawnerNewItem(col, targetRow));
+
+    }
+
+    private IEnumerator SpawnerNewItem(int col, int targetRow)
+    {
+        for (int y = targetRow; y < height; y++)
+        {
+            Node node = MapManager.Instance.nodesMap[col, y];
+
+            if (node.IsSnake() || node.GetItemObject() != null || node.tileType != TileType.Empty)
+                continue;
+
+            TileType newTile = GetRandomTile();
+            if (prefabDict.TryGetValue(newTile, out var prefab))
+            {
+                Vector3 spawnPos = node.transform.position + Vector3.up * 1.5f;
+                var newObj = Instantiate(prefab, spawnPos, Quaternion.identity, node.transform);
+
+                yield return StartCoroutine(MoveItem(newObj, node, spawnPos, newTile));
+
+                yield return new WaitForSeconds(0.05f);
+            }
+        }
+    }
+
+    private IEnumerator MoveItem(GameObject newObj, Node newNode, Vector3 spawnPos, TileType newTile)
+    {
+        Vector3 end = newNode.transform.position;
+        float t = 0;
+
+        while (t < 1f)
+        {
+            if (newNode.IsSnake())
+            {
+                Destroy(newObj); 
+                yield break;
+            }
+
+            t += Time.deltaTime * 8f;
+            newObj.transform.position = Vector3.Lerp(spawnPos, end, t);
+            yield return null;
+        }
+
+        if (!newNode.IsSnake() && newNode.GetItemObject() == null)
+        {
+            newObj.transform.position = end;
+            newNode.SetTile(newTile, newObj);
             switch (newNode.tileType)
             {
                 case TileType.Obstacle:
@@ -156,38 +218,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
             }
         }
-
-        SpawnerNewItem(col, targetRow);
-    }
-
-    private void SpawnerNewItem(int col, int targetRow)
-    {
-        for (int y = targetRow; y < height; y++)
+        else
         {
-            Node node = MapManager.Instance.nodesMap[col, y];
-            if (node.IsSnake() || node.GetItemObject() != null || node.tileType != TileType.Empty) continue;
-            TileType newTile = GetRandomTile();
-            if (prefabDict.TryGetValue(newTile, out var prefab))
-            {
-                Vector3 spawnPos = node.transform.position + Vector3.up * 1.5f;
-                var newObj = Instantiate(prefab, spawnPos, Quaternion.identity, node.transform);
-
-                MoveItem(newObj, node, spawnPos, newTile);
-            }
+            Destroy(newObj); 
         }
     }
-    private void MoveItem(GameObject newObj, Node newNode, Vector3 spawnPos, TileType newTile)
-    {
-        Vector3 end = newNode.transform.position;
-        float t = 0;
 
-        while (t < 1f)
-        {
-            t += Time.deltaTime * 10f;
-            newObj.transform.position = Vector3.Lerp(spawnPos, end, t);
-        }
-        newObj.transform.position = end;
 
-        newNode.SetTile(newTile, newObj);
-    }
 }
