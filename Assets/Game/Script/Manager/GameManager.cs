@@ -67,19 +67,34 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         int row = nodePos.y;
 
         // Nếu trong cột đó có Snake từ row trở xuống thì bỏ qua
-        for (int y = 0; y < height; y++)
+        for (int y = row; y < height; y++)
         {
             Node node = MapManager.Instance.nodesMap[col, y];
-            if (node.IsSnake() && y >= row) return;
+            if (node.IsSnake()) return;
         }
 
-        columnQueues[col].Enqueue(row);
-
-        if (!isRunning[col])
+        int lowestEmpty = -1;
+        for (int y = 0; y <= row; y++)
         {
-            StartCoroutine(RunQueue(col));
+            Node node = MapManager.Instance.nodesMap[col, y];
+            if (!node.IsSnake() && node.GetItemObject() == null && node.tileType == TileType.Empty)
+            {
+                lowestEmpty = y;
+                break; 
+            }
+        }
+
+        if (lowestEmpty != -1)
+        {
+            columnQueues[col].Enqueue(lowestEmpty);
+
+            if (!isRunning[col])
+            {
+                StartCoroutine(RunQueue(col));
+            }
         }
     }
+
 
     private IEnumerator RunQueue(int col)
     {
@@ -102,7 +117,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         {
             Node oldNode = MapManager.Instance.nodesMap[col, y];
 
-            if (oldNode.IsSnake()) continue;
+            if (oldNode.IsSnake()) break;
 
             GameObject obj = oldNode.GetItemObject();
             if (obj == null) continue;
