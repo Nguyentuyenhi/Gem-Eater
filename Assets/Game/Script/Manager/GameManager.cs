@@ -1,13 +1,15 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public enum TileType
 {
     Empty,
-    Ground,// ô trống
-    Obstacle,   // vật cản
+    Ground,
+    Obstacle,
     GemRed,     // đá quý đỏ
     GemWhite,
     GemYellow
@@ -20,9 +22,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     private Queue<int>[] columnQueues;                // queue để lưu các request
     private int height;
     private int width;
-    [Header("Map Settings")]
-
     private Dictionary<TileType, GameObject> prefabDict;
+    [Header("Score")]
+    [SerializeField] private TMP_Text scorePrefab;
+
+
 
     void Start()
     {
@@ -45,8 +49,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     }
 
-
-
     TileType GetRandomTile()
     {
         float rand = Random.value;
@@ -57,16 +59,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         return TileType.GemYellow;
     }
 
-
-
-
-
     public void TryCollapseColumn(Vector2Int nodePos)
     {
         int col = nodePos.x;
         int row = nodePos.y;
 
-        // Nếu trong cột đó có Snake từ row trở xuống thì bỏ qua
         for (int y = row; y < height; y++)
         {
             Node node = MapManager.Instance.nodesMap[col, y];
@@ -80,7 +77,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             if (!node.IsSnake() && node.GetItemObject() == null && node.tileType == TileType.Empty)
             {
                 lowestEmpty = y;
-                break; 
+                break;
             }
         }
 
@@ -116,8 +113,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         for (int y = rowStart; y < height; y++)
         {
             Node oldNode = MapManager.Instance.nodesMap[col, y];
-
-            if (oldNode.IsSnake()) break;
+            if (oldNode.IsSnake()) yield break;
 
             GameObject obj = oldNode.GetItemObject();
             if (obj == null) continue;
@@ -135,39 +131,15 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             }
             oldNode.ClearItem();
 
+            MoveItem(obj, newNode, tileType);
 
-            Vector3 start = obj.transform.position;
-            Vector3 end = newNode.transform.position;
-
-            float t = 0;
-            while (t < 1f)
-            {
-                t += Time.deltaTime * 10f;
-                obj.transform.position = Vector3.Lerp(start, end, t);
-                yield return null;
-            }
-            if (!newNode.IsSnake() && newNode.GetItemObject() == null)
-            {
-                obj.transform.position = end;
-                newNode.SetTile(tileType, obj);
-                switch (newNode.tileType)
-                {
-                    case TileType.Obstacle:
-                        newNode.SetOccupied(true); break;
-
-                }
-            }
-            else
-            {
-                Destroy(obj);
-            }
         }
 
-        StartCoroutine(SpawnerNewItem(col, targetRow));
+        SpawnerNewItem(col, targetRow);
 
     }
 
-    private IEnumerator SpawnerNewItem(int col, int targetRow)
+    private void SpawnerNewItem(int col, int targetRow)
     {
         for (int y = targetRow; y < height; y++)
         {
@@ -179,50 +151,65 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             TileType newTile = GetRandomTile();
             if (prefabDict.TryGetValue(newTile, out var prefab))
             {
-                Vector3 spawnPos = node.transform.position + Vector3.up * 1.5f;
-                var newObj = Instantiate(prefab, spawnPos, Quaternion.identity, node.transform);
+                Vector3 start = node.transform.position + Vector3.up * 1.5f;
+                var newObj = Instantiate(prefab, start, Quaternion.identity, node.transform);
 
-                yield return StartCoroutine(MoveItem(newObj, node, spawnPos, newTile));
+                MoveItem(newObj, node, newTile);
 
-                yield return new WaitForSeconds(0.05f);
             }
         }
     }
 
-    private IEnumerator MoveItem(GameObject newObj, Node newNode, Vector3 spawnPos, TileType newTile)
+    private void MoveItem(GameObject obj, Node newNode, TileType newTile)
     {
         Vector3 end = newNode.transform.position;
-        float t = 0;
+        newNode.SetTile(newTile, obj);
 
-        while (t < 1f)
-        {
-            if (newNode.IsSnake())
+        if (newNode.tileType == TileType.Obstacle)
+            newNode.SetOccupied(true);
+        obj.transform.DOMove(end, 0.2f)
+            .SetEase(Ease.Linear)
+            .OnUpdate(() =>
             {
-                Destroy(newObj); 
-                yield break;
-            }
-
-            t += Time.deltaTime * 8f;
-            newObj.transform.position = Vector3.Lerp(spawnPos, end, t);
-            yield return null;
-        }
-
-        if (!newNode.IsSnake() && newNode.GetItemObject() == null)
-        {
-            newObj.transform.position = end;
-            newNode.SetTile(newTile, newObj);
-            switch (newNode.tileType)
+                if (newNode.IsSnake())
+                {
+                    obj.transform.DOKill();
+                    Destroy(obj);
+                }
+            })
+            .OnComplete(() =>
             {
-                case TileType.Obstacle:
-                    newNode.SetOccupied(true); break;
+                obj.transform.position = end;
+                if (newNode.IsSnake())
+                {
+                    Destroy(obj);
+                }
 
-            }
-        }
-        else
-        {
-            Destroy(newObj); 
-        }
+            });
     }
 
+
+    public int GetGemScore(TileType gemType, int combo)
+    {
+        int baseScore = 0;
+
+        switch (gemType)
+        {
+            case TileType.GemRed: baseScore = 1; break;
+            case TileType.GemYellow: baseScore = 2; break;
+            case TileType.GemWhite: baseScore = 4; break;
+        }
+
+        if (combo == 1) return baseScore;
+        return baseScore * (combo - 1) * 10;
+    }
+
+    public void SpawnerScore(Vector3 pos, int score)
+    {
+        TMP_Text scoreText = Instantiate(scorePrefab, pos, Quaternion.identity);
+        scoreText.text = score.ToString();
+
+        scoreText.DOFade(0, 2f).OnComplete(() => Destroy(scoreText.gameObject));
+    }
 
 }

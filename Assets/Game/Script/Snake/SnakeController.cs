@@ -1,15 +1,14 @@
-﻿using NUnit.Framework;
-using System.Collections;
+﻿using DG.Tweening;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
-using static UnityEditor.Progress;
-using static UnityEditor.VersionControl.Asset;
-
 public class SnakeController : SnakeBase
 {
     private bool isDragging = false;
     private bool isMoving = false;
+    [SerializeField] private Node oldNode;
+    [SerializeField] private TileType curGem;
+
+    [SerializeField] private int comboCount = 0;
 
     private List<SnakeBody> snakeParts = new List<SnakeBody>();
 
@@ -71,51 +70,68 @@ public class SnakeController : SnakeBase
     void MoveToNode(Node newNode)
     {
         currentNode.SetIsSnake(false);
-        StartCoroutine(MoveSmooth(newNode));
+        MoveSmooth(newNode);
     }
 
-    IEnumerator MoveSmooth(Node newNode)
+
+    public void MoveSmooth(Node newNode)
     {
         isMoving = true;
 
-        Node oldHeadNode = currentNode;
-        UpdateSnakeParts(oldHeadNode);
-        while (Vector3.Distance(transform.position, newNode.transform.position) > 0.01f)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, newNode.transform.position, moveSpeed * Time.deltaTime);
-            yield return null;
-        }
+        oldNode = currentNode;
 
-        currentNode = newNode;
-        currentNode.SetIsSnake(true);
-        CheckNodeISGem(newNode);
-        //if (GameManager.Instance.CheckWin())
-        //{
-        //    Debug.Log("WWWWWIIIIIIINNNNNN");
-        //}
-        transform.position = newNode.transform.position;
-        isMoving = false;
+
+        distance = Vector3.Distance(transform.position, newNode.transform.position);
+        duration = distance / moveSpeed;
+
+        transform.DOMove(newNode.transform.position, duration)
+            .SetEase(Ease.Linear)
+            .OnComplete(() =>
+            {
+                currentNode = newNode;
+                currentNode.SetIsSnake(true);
+                CheckNodeISGem(newNode);
+
+                transform.position = newNode.transform.position;
+                isMoving = false;
+            });
+        UpdateSnakeParts(oldNode);
     }
+
 
     private void CheckNodeISGem(Node node)
     {
-
         var itemObj = node.GetItemObject();
         if (itemObj != null)
         {
-
             switch (node.tileType)
             {
                 case TileType.GemRed:
                 case TileType.GemYellow:
                 case TileType.GemWhite:
-                case TileType.Ground:
+                    if (node.tileType == curGem)
+                    {
+                        comboCount++;
+                    }
+                    else
+                    {
+                        curGem = node.tileType;
+                        comboCount = 1;
+                    }
+
+                    int gemScore = GameManager.Instance.GetGemScore(node.tileType, comboCount);
+                    ScoreUIManager.Instance.AddScore(gemScore);
+                    GameManager.Instance.SpawnerScore(node.transform.position - new Vector3(0, 0, 0.6f), gemScore);
                     node.ClearItemObject();
                     break;
 
+                case TileType.Ground:
+                    node.ClearItemObject();
+                    break;
             }
         }
     }
+
 
     void UpdateSnakeParts(Node oldHeadNode)
     {
@@ -170,3 +186,5 @@ public class SnakeController : SnakeBase
     }
 
 }
+
+

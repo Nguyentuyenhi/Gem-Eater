@@ -4,7 +4,9 @@ public class SnakeBase : MonoBehaviour
 {
     public Node currentNode;
     public enum Direction { Up, Down, Left, Right }
-    protected float moveSpeed = 5f;
+    protected float moveSpeed = 10f;
+    protected float distance;
+    protected float duration;
 
     [SerializeField] protected Direction currentDirection = Direction.Up;
     protected virtual void RotatingSnake(Direction dir)

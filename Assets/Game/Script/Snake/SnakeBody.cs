@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using System.Collections;
 using UnityEngine;
 using static SnakeBody;
 
@@ -16,30 +17,29 @@ public class SnakeBody : SnakeBase
 
     public void MoveToNode(Node node)
     {
-        StartCoroutine(MoveSmooth(node));
+        MoveSmooth(node);
     }
-    protected virtual IEnumerator MoveSmooth(Node newNode)
+    protected virtual void MoveSmooth(Node newNode)
     {
+        distance = Vector3.Distance(transform.position, newNode.transform.position);
+        duration = distance / moveSpeed;
 
-        while (Vector3.Distance(transform.position, newNode.transform.position) > 0.01f)
-        {
-            transform.position = Vector3.MoveTowards(
-                transform.position,
-                newNode.transform.position,
-                moveSpeed * Time.deltaTime
-            );
-            yield return null;
-        }
-        oldNode = currentNode;
-        currentNode = newNode;
-        currentNode.SetIsSnake(true);
-        if (snakeType == SnakeType.Tail)
-        {
-            //oldNode.SetCanDown(true);
-            GameManager.Instance.TryCollapseColumn(new Vector2Int(oldNode.indexX, oldNode.indexY));
-        }
-        transform.position = newNode.transform.position;
+        transform.DOMove(newNode.transform.position, duration)
+            .SetEase(Ease.Linear)
+            .OnComplete(() =>
+            {
+                oldNode = currentNode;
+                currentNode = newNode;
+                currentNode.SetIsSnake(true);
 
+                if (snakeType == SnakeType.Tail)
+                {
+                    //oldNode.SetCanDown(true);
+                    GameManager.Instance.TryCollapseColumn(new Vector2Int(oldNode.indexX, oldNode.indexY));
+                }
+
+                transform.position = newNode.transform.position;
+            });
     }
 
 
