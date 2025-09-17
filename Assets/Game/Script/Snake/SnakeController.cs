@@ -94,7 +94,7 @@ public class SnakeController : SnakeBase
                 transform.position = newNode.transform.position;
                 isMoving = false;
             });
-        UpdateSnakeParts(oldNode);
+        UpdateSnakeParts(oldNode, newNode);
         GameManager.Instance.CheckGameOver(newNode);
     }
 
@@ -133,7 +133,7 @@ public class SnakeController : SnakeBase
     }
 
 
-    void UpdateSnakeParts(Node oldHeadNode)
+    void UpdateSnakeParts(Node oldHeadNode, Node newNode)
     {
         Node prevNode = oldHeadNode;
 
@@ -141,7 +141,7 @@ public class SnakeController : SnakeBase
         {
             Node temp = GameManager.Instance.snakeParts[i].currentNode;
             temp.SetIsSnake(false);
-            GameManager.Instance.snakeParts[i].MoveToNode(prevNode, currentDirection, currentNode);
+            GameManager.Instance.snakeParts[i].MoveToNode(prevNode, currentDirection, newNode);
             prevNode.SetIsSnake(true);
             prevNode = temp;
         }
