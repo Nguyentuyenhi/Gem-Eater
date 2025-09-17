@@ -55,7 +55,7 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
 
         for (int x = 0; x < width; x++)
         {
-            for (int y = 0; y < height; y++)   
+            for (int y = 0; y < height; y++)
             {
                 Vector3 pos = new Vector3(x, y, 0);
                 var nodeObj = Instantiate(nodePrefab, pos, Quaternion.identity, transform);
@@ -89,7 +89,8 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
         Vector2Int headPos = new Vector2Int(3, 2);
         int[,] snakeData = new int[,]
         {
-        { 5, 4, 4 },
+            { 5, 0, 0 },
+        { 4, 4, 4 },
         { 0, 0, 3 },
         };
 
@@ -184,7 +185,7 @@ public class MapManager : SingletonMonoBehaviour<MapManager>
             headController.SetSnakaParts(parts);
     }
 
-    public void SpawnFood(Vector2Int pos,TileType tileType,GameObject gem)
+    public void SpawnFood(Vector2Int pos, TileType tileType, GameObject gem)
     {
         Node node = nodesMap[pos.x, pos.y];
         var food = Instantiate(gem, node.transform.position, Quaternion.identity, node.transform);

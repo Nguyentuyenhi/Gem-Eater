@@ -26,6 +26,12 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     [Header("Score")]
     [SerializeField] private TMP_Text scorePrefab;
 
+    public List<SnakeBody> snakeParts = new List<SnakeBody>();
+
+
+    private int baseScore;
+    private bool isLose;
+
 
 
     void Start()
@@ -131,15 +137,15 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             }
             oldNode.ClearItem();
 
-            MoveItem(obj, newNode, tileType);
+            yield return StartCoroutine(MoveItem(obj, newNode, tileType));
 
         }
 
-        SpawnerNewItem(col, targetRow);
+        StartCoroutine(SpawnerNewItem(col, targetRow));
 
     }
 
-    private void SpawnerNewItem(int col, int targetRow)
+    private IEnumerator SpawnerNewItem(int col, int targetRow)
     {
         for (int y = targetRow; y < height; y++)
         {
@@ -154,44 +160,44 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 Vector3 start = node.transform.position + Vector3.up * 1.5f;
                 var newObj = Instantiate(prefab, start, Quaternion.identity, node.transform);
 
-                MoveItem(newObj, node, newTile);
+                yield return StartCoroutine(MoveItem(newObj, node, newTile));
 
             }
         }
     }
 
-    private void MoveItem(GameObject obj, Node newNode, TileType newTile)
+
+    private IEnumerator MoveItem(GameObject obj, Node newNode, TileType newTile)
     {
         Vector3 end = newNode.transform.position;
         newNode.SetTile(newTile, obj);
-
         if (newNode.tileType == TileType.Obstacle)
+        {
             newNode.SetOccupied(true);
-        obj.transform.DOMove(end, 0.2f)
-            .SetEase(Ease.Linear)
-            .OnUpdate(() =>
-            {
-                if (newNode.IsSnake())
-                {
-                    obj.transform.DOKill();
-                    Destroy(obj);
-                }
-            })
-            .OnComplete(() =>
-            {
-                obj.transform.position = end;
-                if (newNode.IsSnake())
-                {
-                    Destroy(obj);
-                }
+        }
+        float distance = Vector3.Distance(obj.transform.position, end);
+        float duration = distance / 15f;
 
-            });
+        Tween tween = obj.transform.DOMove(end, duration)
+            .SetEase(Ease.Linear);
+
+        yield return tween.WaitForCompletion();
+
+        if (obj == null) yield break;
+
+        obj.transform.position = end;
+
+        if (newNode.IsSnake())
+        {
+            newNode.ClearItemObject();
+            yield break;
+        }
     }
 
 
     public int GetGemScore(TileType gemType, int combo)
     {
-        int baseScore = 0;
+        baseScore = 0;
 
         switch (gemType)
         {
@@ -211,5 +217,34 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
         scoreText.DOFade(0, 2f).OnComplete(() => Destroy(scoreText.gameObject));
     }
+
+
+    public void CheckGameOver(Node CurNode)
+    {
+        List<Node> neighbors = CurNode.GetNeighborNode();
+        Debug.Log("----------checking0---------------");
+        isLose = true;
+        foreach (var node in neighbors)
+        {
+            if (!node.GetIsObstacle() && !node.IsSnake())
+            {
+                isLose = false;
+                Debug.Log("----------checking09999---------------");
+                break;
+            }
+        }
+
+        if (isLose)
+        {
+            GameOver();
+        }
+    }
+
+    public void GameOver()
+    {
+        Debug.Log("---------------------GAME OVER!------------------");
+    }
+
+
 
 }

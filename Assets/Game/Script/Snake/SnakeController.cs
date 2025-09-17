@@ -10,7 +10,6 @@ public class SnakeController : SnakeBase
 
     [SerializeField] private int comboCount = 0;
 
-    private List<SnakeBody> snakeParts = new List<SnakeBody>();
 
 
     private void Start()
@@ -34,7 +33,7 @@ public class SnakeController : SnakeBase
 
     public void SetSnakaParts(List<SnakeBody> Parts)
     {
-        snakeParts = Parts;
+        GameManager.Instance.snakeParts = Parts;
     }
     private void OnMouseDown()
     {
@@ -80,7 +79,7 @@ public class SnakeController : SnakeBase
 
         oldNode = currentNode;
 
-
+        newNode.SetIsSnake(true);
         distance = Vector3.Distance(transform.position, newNode.transform.position);
         duration = distance / moveSpeed;
 
@@ -89,13 +88,14 @@ public class SnakeController : SnakeBase
             .OnComplete(() =>
             {
                 currentNode = newNode;
-                currentNode.SetIsSnake(true);
+                // currentNode.SetIsSnake(true);
                 CheckNodeISGem(newNode);
 
                 transform.position = newNode.transform.position;
                 isMoving = false;
             });
         UpdateSnakeParts(oldNode);
+        GameManager.Instance.CheckGameOver(newNode);
     }
 
 
@@ -137,16 +137,15 @@ public class SnakeController : SnakeBase
     {
         Node prevNode = oldHeadNode;
 
-        for (int i = 0; i < snakeParts.Count; i++)
+        for (int i = 0; i < GameManager.Instance.snakeParts.Count; i++)
         {
-            Node temp = snakeParts[i].currentNode;
+            Node temp = GameManager.Instance.snakeParts[i].currentNode;
             temp.SetIsSnake(false);
-            snakeParts[i].MoveToNode(prevNode);
+            GameManager.Instance.snakeParts[i].MoveToNode(prevNode, currentDirection, currentNode);
+            prevNode.SetIsSnake(true);
             prevNode = temp;
         }
     }
-
-
 
     Direction? GetDirectionFromNodes(Node target)
     {
