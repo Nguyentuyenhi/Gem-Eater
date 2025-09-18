@@ -758,6 +758,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scorePrefab: {fileID: 8460039547379780780, guid: fc5bb659eab4ac44fb3ebcb1f03c3263, type: 3}
+  snakeParts: []
 --- !u!1 &1629537651
 GameObject:
   m_ObjectHideFlags: 0
