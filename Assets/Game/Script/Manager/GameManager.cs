@@ -222,14 +222,12 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public void CheckGameOver(Node CurNode)
     {
         List<Node> neighbors = CurNode.GetNeighborNode();
-        Debug.Log("----------checking0---------------");
         isLose = true;
         foreach (var node in neighbors)
         {
             if (!node.GetIsObstacle() && !node.IsSnake())
             {
                 isLose = false;
-                Debug.Log("----------checking09999---------------");
                 break;
             }
         }
